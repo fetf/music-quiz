@@ -1,0 +1,20 @@
+{
+  "name": "demo-discord-bot",
+  "version": "1.0.0",
+  "description": "This repository is part of a series on my website [brianmorrison.me](https://brianmorrison.me).",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^1.7.0",
+    "@discordjs/rest": "^2.2.0",
+    "discord-api-types": "^0.37.66",
+    "discord.js": "^13.17.1",
+    "dotenv": "^16.3.1"
+  },
+  "keywords": []
+}
