@@ -1,5 +1,6 @@
 const { Client, Intents } = require('discord.js');
 const { token } = require('./config.json');
+// const { joinVoiceChannel } = require('@discordjs/voice');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
