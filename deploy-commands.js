@@ -6,9 +6,9 @@ const { clientId, token } = require('./config.json');
 const commands = [
   // General Commands
   new SlashCommandBuilder().setName('hello').setDescription('Says hello or something'),
-	new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
-	new SlashCommandBuilder().setName('server').setDescription('Replies with server info!'),
-	new SlashCommandBuilder().setName('user').setDescription('Replies with user info!'),
+  new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
+  new SlashCommandBuilder().setName('server').setDescription('Replies with server info!'),
+  new SlashCommandBuilder().setName('user').setDescription('Replies with user info!'),
  
   // Music Quiz Commands
   new SlashCommandBuilder().setName('start-quiz').setDescription('Starts a music quiz'),
