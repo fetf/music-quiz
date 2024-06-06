@@ -15,7 +15,8 @@
     "@discordjs/voice": "^0.17.0",
     "discord-api-types": "^0.37.66",
     "discord.js": "^13.17.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "ffmpeg-static": "^5.2.0"
   },
   "keywords": []
 }
