@@ -8,7 +8,7 @@ const {
 	VoiceConnectionStatus,
 	NoSubscriberBehavior 
 } = require('@discordjs/voice');
-const { GatewayIntentBits } = require("discord-api-types/v9")
+const { GatewayIntentBits } = require("discord-api-types/v10")
 const { Client } = require("discord.js");
 const ytdl = require('ytdl-core');
 const { Client:Client2 } = require("youtubei");
@@ -100,6 +100,8 @@ function playSongList(videos, index, channel) {
 	player.play(resource)
 	global.song = videos[index].title;
 	global.artist = videos[index].channel.name;
+	console.log(global.song);
+	console.log(global.artist);
 
 	/**
 	 * Here we are using a helper function. It will resolve if the player enters the Playing
@@ -180,7 +182,8 @@ const client = new Client({
 intents: [
 	GatewayIntentBits.Guilds,
 	GatewayIntentBits.GuildMessages,
-	GatewayIntentBits.GuildVoiceStates
+	GatewayIntentBits.GuildVoiceStates,
+	GatewayIntentBits.MessageContent,
 ]
 })
 
@@ -192,7 +195,14 @@ client.once('ready', () => {
 client.on('messageCreate', async message => {
 	if (global.activeQuiz && global.channelId === message.channelId) {
 		if (message.author.bot) return;
-		message.react('❌');
+		const msg = message.content.toLowerCase();
+		if (msg === global.song.toLowerCase()) {
+			message.react('✅');
+		} else if (msg === global.artist.toLowerCase()) {
+			message.react('✅');
+		} else {
+			message.react('❌');
+		}
 	}
 });
 
