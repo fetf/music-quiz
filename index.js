@@ -1,13 +1,21 @@
 const fs = require('fs');
 const path = require('path');
-const { Client, Collection, Events, Intents } = require('discord.js');
+const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ 
+	intents: [
+		Intents.FLAGS.GUILDS,
+		Intents.FLAGS.GUILD_MESSAGES,
+	],
+});
+
+global.activeQuiz = true;
 
 client.once('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-  })
+	global.activeQuiz = false;
+});
 
 client.commands = new Collection();
 
@@ -28,6 +36,13 @@ for (const folder of commandFolders) {
 		}
 	}
 }
+
+client.on('messageCreate', async message => {
+	if (global.activeQuiz && global.channelId === message.channelId) {
+		if (message.author.bot) return;
+		message.react('❌');
+	}
+});
 
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
@@ -52,17 +67,6 @@ client.on('interactionCreate', async interaction => {
 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 		}
 	}
-	/*
-	if (commandName === 'ping') {
-		await interaction.reply('Pong!');
-	} else if (commandName === 'hello') {
-		await interaction.reply('World.');
-	} else if (commandName === 'server') {
-		await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
-	} else if (commandName === 'user') {
-		await interaction.reply(`Your tag: ${interaction.user.tag}\nYour id: ${interaction.user.id}`);
-	}
-	*/
 });
 
 client.login(token);
