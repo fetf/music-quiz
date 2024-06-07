@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"target": "es2019",
+		"lib": ["ESNext"],
+		"declaration": false,
+		"sourceMap": false,
+		"removeComments": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"alwaysStrict": true,
+		"allowSyntheticDefaultImports": true,
+		"pretty": true,
+		"allowJs": true,
+		"checkJs": true,
+		"noUnusedLocals": true
+	}
+}

@@ -12,6 +12,10 @@ const client = new Client({
 
 global.activeQuiz = true;
 
+global.myFunction = () => {
+	// Function logic goes here
+};
+
 client.once('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 	global.activeQuiz = false;
