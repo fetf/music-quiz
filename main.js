@@ -9,7 +9,7 @@ const {
 	NoSubscriberBehavior 
   } = require('@discordjs/voice');
   const { GatewayIntentBits } = require("discord-api-types/v9")
-  const { Client } = require("discord.js");
+  const { Client, EmbedBuilder } = require("discord.js");
   const ytdl = require('ytdl-core');
   const { Client:Client2 } = require("youtubei");
 
@@ -100,14 +100,26 @@ const {
 	 * the input is, and that we'd like to have this converted into a format we can use. If we
 	 * were using an Ogg or WebM source, then we could change this value. However, for now we
 	 * will leave this as arbitrary.
-	 */
+	 */	
+	
+
   
 		if(index > 0){
-			channel.send("It was **" + videos[index-1].title + "** by **" + videos[index-1].channel.name + "**");
+			//channel.send("It was **" + videos[index-1].title + "** by **" + videos[index-1].channel.name + "**");
+			const songEmbed = new EmbedBuilder()
+				.setColor(0x0099FF)
+				.setTitle(videos[index-1].title)
+				.setAuthor({ name: 'Music Quiz: Song #' + index.toString()})
+				.setDescription(videos[index-1].channel.name)
+				.setImage(videos[index-1].thumbnails[0].url);
+
+			
+			channel.send({ embeds: [songEmbed] });
 		}
 
 		if(videos.length == index){
 			player.pause();
+			channel.send("Quiz Over");
 			return;
 		}
 
