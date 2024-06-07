@@ -64,11 +64,32 @@ const {
 		return entersState(player, AudioPlayerStatus.Playing, 5000);
 	
 	
-  
-	
+
   }
 
-  let currTimeoutID;
+  let currTimer;
+
+
+  const Timer = function(callback, delay, p1, p2, p3) {
+    let timerId, start, remaining = delay;
+
+    this.pause = function() {
+        clearTimeout(timerId);
+        timerId = null;
+        remaining -= Date.now() - start;
+    };
+
+    this.resume = function() {
+        if (timerId) {
+            return;
+        }
+
+        start = Date.now();
+        timerId = setTimeout(callback, remaining, p1, p2, p3);
+    };
+
+    this.resume();
+};
 
   function playSongList(videos, index, channel) {
 	/**
@@ -103,13 +124,14 @@ const {
 		 * Here we are using a helper function. It will resolve if the player enters the Playing
 		 * state within 5 seconds, otherwise it will reject with an error.
 		 */
-		currTimeoutID = setTimeout(playSongList, 15000, videos, index+1, channel);
+		//currTimeoutID = setTimeout(playSongList, 15000, videos, index+1, channel);
+		currTimer = new Timer(playSongList, 15000, videos, index+1, channel);
 		return entersState(player, AudioPlayerStatus.Playing, 5000);
 	
 	
-  
-	
   }
+
+  
 
 
   function shuffle(array) {
@@ -294,10 +316,12 @@ const {
 
 	if (commandName === 'stop') {
 		player.pause();
+		currTimer.pause();
 		await interaction.reply('Stopped!');
 	}
 	if(commandName === 'resume'){
 		player.unpause();
+		currTimer.resume();
 		await interaction.reply('Resumed!');
 	}
 	if(commandName === 'playlist'){
