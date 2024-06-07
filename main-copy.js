@@ -195,10 +195,10 @@ client.once('ready', () => {
 client.on('messageCreate', async message => {
 	if (global.activeQuiz && global.channelId === message.channelId) {
 		if (message.author.bot) return;
-		const msg = message.content.toLowerCase();
-		if (msg === global.song.toLowerCase()) {
+		const content = message.content.toLowerCase();
+		if (content === global.song.toLowerCase()) {
 			message.react('✅');
-		} else if (msg === global.artist.toLowerCase()) {
+		} else if (content === global.artist.toLowerCase()) {
 			message.react('✅');
 		} else {
 			message.react('❌');
