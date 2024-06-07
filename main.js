@@ -110,8 +110,15 @@ const {
 			player.pause();
 			return;
 		}
-	
-    	const stream = ytdl("https://www.youtube.com/watch?v=" + videos[index].id, {filter: 'audioonly'});
+
+		/*
+		let start = videos[index].duration - 15;
+		if(start < 0) start = 0;
+		start = Math.floor(Math.random() * (start+1));
+		console.log("start at " + start.toString());
+		*/
+
+    	const stream = ytdl("https://www.youtube.com/watch?v=" + videos[index].id, { filter:"audioonly" });
 		const resource = createAudioResource(stream);
 		/**
 		 * We will now play this to the audio player. By default, the audio player will not play until
@@ -315,13 +322,17 @@ const {
 	}
 
 	if (commandName === 'stop') {
-		player.pause();
-		currTimer.pause();
+		try{
+			player.pause();
+			currTimer.pause();
+		}catch{}
 		await interaction.reply('Stopped!');
 	}
 	if(commandName === 'resume'){
-		player.unpause();
-		currTimer.resume();
+		try{
+			player.unpause();
+			currTimer.resume();
+		} catch{}
 		await interaction.reply('Resumed!');
 	}
 	if(commandName === 'playlist'){
