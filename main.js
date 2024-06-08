@@ -12,7 +12,7 @@ const { GatewayIntentBits } = require("discord-api-types/v10")
 const { Client, EmbedBuilder } = require("discord.js");
 const ytdl = require('ytdl-core');
 const { Client:Client2 } = require("youtubei");
-import { stringSimilarity } from "string-similarity-js";
+const { stringSimilarity } = require("string-similarity-js");
 
 
 
@@ -78,6 +78,11 @@ const Timer = function(callback, delay, p1, p2, p3) {
 		remaining -= Date.now() - start;
 	};
 
+	this.finish = function() {
+		clearTimeout(timerId);
+		playSongList(p1, p2, p3);
+	}
+
 	this.resume = function() {
 		if (timerId) {
 			return;
@@ -121,7 +126,17 @@ function playSongList(videos, index, channel) {
 
 	if(videos.length == index){
 		player.pause();
-		channel.send("Quiz Over");
+		const scoresString = Array.from(global.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join(', ');
+		const overEmbed = new EmbedBuilder()
+			.setColor(0xFFB7C5)
+			.setTitle("Music Quiz Final Score:")
+			.addFields(
+				{ name: 'Placements', value: scoresString }
+			)
+
+		
+		channel.send({ embeds: [overEmbed] });
+		//channel.send("Quiz Over");
 		return;
 	}
 
@@ -243,18 +258,21 @@ client.on('messageCreate', async message => {
 	if (global.activeQuiz && global.channelId === message.channelId) {
 		if (message.author.bot) return;
 		const content = message.content.toLowerCase();
-		if (!global.songGuessed && stringSimilarity(content, global.song.toLowerCase()) > 0.9) {
+		if (!global.songGuessed && stringSimilarity(content, global.song.toLowerCase(), 1) > 0.9) {
 			global.songGuessed = true;
 			message.react('✅');
 			global.scores.set(message.author.id, global.scores.get(message.author.id) + 1);
 			console.log(global.scores);
-		} else if (!global.artistGuessed && stringSimilarity(content, global.artist.toLowerCase()) > 0.9) {
+		} else if (!global.artistGuessed && stringSimilarity(content, global.artist.toLowerCase(), 1) > 0.9) {
 			global.artistGuessed = true;
 			message.react('✅');
 			global.scores.set(message.author.id, global.scores.get(message.author.id) + 1);
 			console.log(global.scores);
 		} else {
 			message.react('❌');
+		}
+		if(global.songGuessed && global.artistGuessed){
+			currTimer.finish();
 		}
 	}
 });
