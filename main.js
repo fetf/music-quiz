@@ -109,7 +109,7 @@ function playSongList(videos, index, channel) {
 
 
 	if(index > 0){
-		const scoresString = Array.from(global.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join(', ');
+		const scoresString = Array.from(global.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
 		const songEmbed = new EmbedBuilder()
 			.setColor(0xFFB7C5)
 			.setTitle(videos[index-1].title)
@@ -259,6 +259,7 @@ client.on('messageCreate', async message => {
 	if (global.activeQuiz && global.channelId === message.channelId) {
 		if (message.author.bot) return;
 		const content = message.content.toLowerCase();
+		if (!global.scores.has(message.author.id)) { global.scores.set(message.author.id, 0); }
 		if (!global.songGuessed && stringSimilarity(content, global.song.toLowerCase(), 1) > 0.9) {
 			global.songGuessed = true;
 			message.react('✅');
