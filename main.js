@@ -150,7 +150,7 @@ function playSongList(videos, index, channel) {
 	 * state within 5 seconds, otherwise it will reject with an error.
 	 */
 	//currTimeoutID = setTimeout(playSongList, 15000, videos, index+1, channel);
-	currTimer = new Timer(playSongList, 15000, videos, index+1, channel);
+	currTimer = new Timer(playSongList, 30000, videos, index+1, channel);
 	return entersState(player, AudioPlayerStatus.Playing, 5000);
 
 
