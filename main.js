@@ -141,14 +141,14 @@ function playSongList(videos, index, channel) {
 		return;
 	}
 
-	/*
+	
 	let start = videos[index].duration - 30;
 	if(start < 0) start = 0;
 	start = Math.floor(Math.random() * (start+1));
 	console.log("start at " + start.toString());
-	*/
+	
 
-	const stream = ytdl("https://www.youtube.com/watch?v=" + videos[index].id, { filter:"audioonly" });
+	const stream = ytdl("https://www.youtube.com/watch?v=" + videos[index].id, { quality :"highestvideo", begin: start.toString() + "s", filter: "audioandvideo" });
 	const resource = createAudioResource(stream);
 	/**
 	 * We will now play this to the audio player. By default, the audio player will not play until
@@ -389,6 +389,9 @@ client.on('interactionCreate', async (interaction) => {
 		if (global.activeQuiz) {
 		    const message = await interaction.reply({ content: 'Music Quiz Ended!', fetchReply: true });
             global.activeQuiz = false;
+			player.pause();
+			currTimer.pause();
+			
 		    message.react('😭');
         } else {
             await interaction.reply('Music Quiz not started');
