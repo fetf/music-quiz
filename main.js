@@ -335,7 +335,12 @@ client.on('interactionCreate', async (interaction) => {
 					
 					const playlist = await youtube.getPlaylist(playlistId);
 
-					let videos = playlist.videos.items.slice();
+					let maxVideos = interaction.options.getInteger('length');
+					if(!Number.isInteger(maxVideos) || maxVideos > playlist.videos.items.length || maxVideos <= 0){
+						maxVideos = playlist.videos.items.length;
+					}
+
+					let videos = playlist.videos.items.slice(0, maxVideos);
 					shuffle(videos);
 
 					try{
@@ -391,6 +396,15 @@ client.on('interactionCreate', async (interaction) => {
             global.activeQuiz = false;
 			player.pause();
 			currTimer.pause();
+			const scoresString = Array.from(global.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join(', ');
+			const overEmbed = new EmbedBuilder()
+			.setColor(0xFFB7C5)
+			.setTitle("Music Quiz Final Score:")
+			.addFields(
+				{ name: 'Placements', value: scoresString }
+			)
+
+			message.channel.send({ embeds: [overEmbed] });
 			
 		    message.react('😭');
         } else {
@@ -484,6 +498,7 @@ client.on('interactionCreate', async (interaction) => {
 				for(let i = 0; i < playlist.videos.items.length; i++){
 					videos[i] = "https://www.youtube.com/watch?v=" + playlist.videos.items[i].id;
 				}*/
+				
 
 				let videos = playlist.videos.items.slice();
 				shuffle(videos);
