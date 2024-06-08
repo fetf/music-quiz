@@ -154,13 +154,14 @@ function playSongList(videos, index, channel) {
 	 * at least one voice connection is subscribed to it, so it is fine to attach our resource to the
 	 * audio player this early.
 	 */
-	player.play(resource)
+	
 	global.song = videos[index].title;
 	global.artist = videos[index].channel.name;
 	global.songGuessed = false;
 	global.artistGuessed = false;
 	console.log(global.song);
 	console.log(global.artist);
+	player.play(resource);
 
 	/**
 	 * Here we are using a helper function. It will resolve if the player enters the Playing
@@ -444,6 +445,15 @@ client.on('interactionCreate', async (interaction) => {
 			currTimer.pause();
 		}catch{}
 		await interaction.reply('Stopped!');
+	}
+	if (commandName === 'skip') {
+		try{
+			currTimer.finish();
+			await interaction.reply('Skipped!');
+		}catch{
+			await interaction.reply('Nothing to Skip');
+		}
+		
 	}
 	if(commandName === 'resume'){
 		try{
