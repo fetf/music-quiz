@@ -12,6 +12,8 @@ const { GatewayIntentBits } = require("discord-api-types/v10")
 const { Client, EmbedBuilder } = require("discord.js");
 const ytdl = require('ytdl-core');
 const { Client:Client2 } = require("youtubei");
+import { stringSimilarity } from "string-similarity-js";
+
 
 
 const { token } = require("./config.json")
@@ -124,7 +126,7 @@ function playSongList(videos, index, channel) {
 	}
 
 	/*
-	let start = videos[index].duration - 15;
+	let start = videos[index].duration - 30;
 	if(start < 0) start = 0;
 	start = Math.floor(Math.random() * (start+1));
 	console.log("start at " + start.toString());
@@ -241,12 +243,12 @@ client.on('messageCreate', async message => {
 	if (global.activeQuiz && global.channelId === message.channelId) {
 		if (message.author.bot) return;
 		const content = message.content.toLowerCase();
-		if (!global.songGuessed && content === global.song.toLowerCase()) {
+		if (!global.songGuessed && stringSimilarity(content, global.song.toLowerCase()) > 0.9) {
 			global.songGuessed = true;
 			message.react('✅');
 			global.scores.set(message.author.id, global.scores.get(message.author.id) + 1);
 			console.log(global.scores);
-		} else if (!global.artistGuessed && content === global.artist.toLowerCase()) {
+		} else if (!global.artistGuessed && stringSimilarity(content, global.artist.toLowerCase()) > 0.9) {
 			global.artistGuessed = true;
 			message.react('✅');
 			global.scores.set(message.author.id, global.scores.get(message.author.id) + 1);
