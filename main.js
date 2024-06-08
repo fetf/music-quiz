@@ -136,6 +136,7 @@ function playSongList(videos, index, channel) {
 
 		
 		channel.send({ embeds: [overEmbed] });
+		global.activeQuiz = false;
 		//channel.send("Quiz Over");
 		return;
 	}
