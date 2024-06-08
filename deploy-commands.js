@@ -11,7 +11,9 @@ const commands = [
   new SlashCommandBuilder().setName('user').setDescription('Replies with user info!'),
  
   // Music Quiz Commands
-  new SlashCommandBuilder().setName('start-quiz').setDescription('Starts a music quiz'),
+  new SlashCommandBuilder().setName('start-quiz').setDescription('Starts a music quiz').addStringOption(option =>
+    option.setName('playlist').setDescription('YouTube Playlist ID for Music Quiz')
+  ),
   new SlashCommandBuilder().setName('end-quiz').setDescription('Ends the current music quiz'),
   new SlashCommandBuilder().setName('skip').setDescription('Skips the current song playing'),
   new SlashCommandBuilder().setName('playlist').setDescription('Sets the playlist to take songs from').addStringOption(option =>
