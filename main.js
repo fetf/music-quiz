@@ -8,7 +8,7 @@ const {
 	VoiceConnectionStatus,
 	NoSubscriberBehavior 
 } = require('@discordjs/voice');
-const { GatewayIntentBits } = require("discord-api-types/v10")
+const { GatewayIntentBits } = require("discord-api-types/v10");
 const { Client, EmbedBuilder } = require("discord.js");
 const ytdl = require('ytdl-core');
 const { Client:Client2 } = require("youtubei");
@@ -56,8 +56,8 @@ function playSong(url) {
 	 * We will now play this to the audio player. By default, the audio player will not play until
 	 * at least one voice connection is subscribed to it, so it is fine to attach our resource to the
 	 * audio player this early.
-	 */
-	player.play(resource)
+	 */l
+	player.play(resource);
 
 	/**
 	 * Here we are using a helper function. It will resolve if the player enters the Playing
@@ -126,7 +126,7 @@ function playSongList(videos, index, channel) {
 
 	if(videos.length == index){
 		player.pause();
-		const scoresString = Array.from(global.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join(', ');
+		const scoresString = Array.from(global.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
 		const overEmbed = new EmbedBuilder()
 			.setColor(0xFFB7C5)
 			.setTitle("Music Quiz Final Score:")
