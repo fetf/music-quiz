@@ -1,11 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const ytdl = require("@distube/ytdl-core");
+const Mutex = require('async-mutex').Mutex;
 const { Client, Collection, EmbedBuilder } = require('discord.js');
 const { GatewayIntentBits } = require("discord-api-types/v10");
 const { stringSimilarity } = require("string-similarity-js");
 const { Client:YTClient, MusicClient } = require("youtubei");
-const Mutex = require('async-mutex').Mutex;
 const {
 	joinVoiceChannel,
 	createAudioPlayer,
@@ -15,6 +15,40 @@ const {
 	VoiceConnectionStatus,
 } = require('@discordjs/voice');
 const { token } = require('./config.json');
+
+class Queue {
+	constructor() {
+		this.items = [];
+	}
+
+	enqueue(element) {
+		this.items.push(element);
+	}
+
+	dequeue() {
+		if (this.isEmpty()) {
+			return null;
+		}
+		return this.items.shift();
+	}
+
+	isEmpty() {
+		return this.items.length === 0;
+	}
+
+	peek() {
+		if (this.isEmpty()) return null;
+		return this.items[0];
+	}
+
+	size() {
+		return this.items.length;
+	}
+
+	clear() {
+		this.items = [];
+	}
+}
 
 const client = new Client({ 
 	intents: [
@@ -28,6 +62,7 @@ client.youtube = new YTClient();
 
 const music = new MusicClient();
 const mutex = new Mutex();
+const queue = new Queue();
 
 client.player = createAudioPlayer();
 client.player.on('stateChange', (oldState, newState) => {
@@ -111,10 +146,10 @@ client.playSongList = async function(videos, index, channel) {
 			.addFields(
 				{ name: 'Placements', value: scoresString }
 			)
-
 		
 		channel.send({ embeds: [overEmbed] });
 		client.activeQuiz = false;
+		client.scores.clear();
 		//channel.send("Quiz Over");
 		return;
 	}

@@ -23,7 +23,7 @@ module.exports = (client) => {
 
 				message.channel.send({ embeds: [overEmbed] });
 				message.react('😭');
-				client.scores = new Map();
+				client.scores.clear();
 			} else {
 				await interaction.reply('Music Quiz not started');
 			}
