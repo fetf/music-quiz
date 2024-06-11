@@ -10,9 +10,14 @@ const {
 } = require('@discordjs/voice');
 const { GatewayIntentBits } = require("discord-api-types/v10");
 const { Client, EmbedBuilder } = require("discord.js");
-const ytdl = require('ytdl-core');
-const { Client:Client2 } = require("youtubei");
+//const ytdl = require('ytdl-core');
+const { Client:Client2, MusicClient } = require("youtubei");
 const { stringSimilarity } = require("string-similarity-js");
+const ytdl = require("@distube/ytdl-core");
+const Mutex = require('async-mutex').Mutex;
+
+const mutex = new Mutex();
+
 
 
 
@@ -78,9 +83,9 @@ const Timer = function(callback, delay, p1, p2, p3) {
 		remaining -= Date.now() - start;
 	};
 
-	this.finish = function() {
+	this.finish = async function() {
 		clearTimeout(timerId);
-		playSongList(p1, p2, p3);
+		await playSongList(p1, p2, p3);
 	}
 
 	this.resume = function() {
@@ -95,7 +100,9 @@ const Timer = function(callback, delay, p1, p2, p3) {
 	this.resume();
 };
 
-function playSongList(videos, index, channel) {
+
+const music = new MusicClient();
+async function playSongList(videos, index, channel) {
 /**
  * Here we are creating an audio resource using a sample song freely available online
  * (see https://www.soundhelix.com/audio-examples)
@@ -107,14 +114,15 @@ function playSongList(videos, index, channel) {
  */	
 
 
+	await mutex.acquire(); //console.log("play aquired");
 
 	if(index > 0){
 		const scoresString = Array.from(global.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
 		const songEmbed = new EmbedBuilder()
 			.setColor(0xFFB7C5)
-			.setTitle(videos[index-1].title)
+			.setTitle(global.song)
 			.setAuthor({ name: 'Music Quiz: Song #' + index.toString()})
-			.setDescription( videos[index-1].channel.name )
+			.setDescription( global.artist )
 			.addFields(
 				{ name: 'Placements', value: scoresString }
 			)
@@ -155,14 +163,20 @@ function playSongList(videos, index, channel) {
 	 * at least one voice connection is subscribed to it, so it is fine to attach our resource to the
 	 * audio player this early.
 	 */
+	let songM = await music.search(videos[index].title + " " + videos[index].channel.name, "song");
+
 	
-	global.song = videos[index].title;
-	global.artist = videos[index].channel.name;
+	global.song = songM.items[0].title;
+	global.artist = songM.items[0].artists[0].name;
 	global.songGuessed = false;
 	global.artistGuessed = false;
 	console.log(global.song);
 	console.log(global.artist);
+	mutex.release(); //console.log("play released");
+
 	player.play(resource);
+	
+	
 
 	/**
 	 * Here we are using a helper function. It will resolve if the player enters the Playing
@@ -257,8 +271,12 @@ client.once('ready', () => {
 
 
 client.on('messageCreate', async message => {
+	await mutex.acquire(); //console.log("message aquired");
 	if (global.activeQuiz && global.channelId === message.channelId) {
-		if (message.author.bot) return;
+		if (message.author.bot){ 
+			mutex.release(); //console.log("message released");
+			return;
+		}
 		const content = message.content.toLowerCase();
 		if (!global.scores.has(message.author.id)) { global.scores.set(message.author.id, 0); }
 		if (!global.songGuessed && stringSimilarity(content, global.song.toLowerCase(), 1) > 0.85) {
@@ -275,9 +293,11 @@ client.on('messageCreate', async message => {
 			message.react('❌');
 		}
 		if(global.songGuessed && global.artistGuessed){
-			currTimer.finish();
+			mutex.release(); //console.log("message released");
+			await currTimer.finish();
 		}
 	}
+	mutex.release(); //console.log("message released");
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -467,7 +487,7 @@ client.on('interactionCreate', async (interaction) => {
 	}
 	if (commandName === 'skip') {
 		try{
-			currTimer.finish();
+			await currTimer.finish();
 			await interaction.reply('Skipped!');
 		}catch{
 			await interaction.reply('Nothing to Skip');
