@@ -61,7 +61,7 @@ function playSong(url) {
 	 * We will now play this to the audio player. By default, the audio player will not play until
 	 * at least one voice connection is subscribed to it, so it is fine to attach our resource to the
 	 * audio player this early.
-	 */l
+	 */
 	player.play(resource);
 
 	/**
@@ -444,7 +444,8 @@ client.on('interactionCreate', async (interaction) => {
 				
 				try{
 					await playSong(url);
-				} catch {
+				} catch (error) {
+					//throw error;
 					await interaction.reply('Invalid URL');
 					return;
 				}
@@ -463,6 +464,61 @@ client.on('interactionCreate', async (interaction) => {
 				connection.subscribe(player);
 				
 				await interaction.reply('Playing now!');
+			} catch (error) {
+				/**
+				 * Unable to connect to the voice channel within 30 seconds :(
+				 */
+				console.error(error);
+			}
+		} else {
+			/**
+			 * The user is not in a voice channel.
+			 */
+			void interaction.reply('Join a voice channel then try again!');
+		}
+
+	}
+
+	if (commandName === 'search') {
+		player.unpause();
+		const channel = interaction.member?.voice.channel;
+		if (channel) {
+			/**
+			 * The user is in a voice channel, try to connect.
+			 */
+			try {
+				const videos = await youtube.search(interaction.options.getString('query'), {type: "video"});
+				
+				try{
+					await playSong("https://www.youtube.com/watch?v=" + videos.items[0].id);
+				} catch {
+					await interaction.reply('Invalid URL');
+					return;
+				}
+
+
+				const connection = await connectToChannel(channel);
+
+				connection.on('stateChange', (oldState, newState) => {
+					console.log(`Connection transitioned from ${oldState.status} to ${newState.status}`);
+				});
+				/**
+				 * We have successfully connected! Now we can subscribe our connection to
+				 * the player. This means that the player will play audio in the user's
+				 * voice channel.
+				 */
+				connection.subscribe(player);
+
+				const songEmbed = new EmbedBuilder()
+					.setColor(0xFFB7C5)
+					.setTitle(videos.items[0].title)
+					.setDescription( videos.items[0].channel.name )
+					.setImage(videos.items[0].thumbnails[0].url);
+
+				
+				await interaction.reply("**Playing Now:**");
+				interaction.channel.send({ embeds: [songEmbed] });
+				
 			} catch (error) {
 				/**
 				 * Unable to connect to the voice channel within 30 seconds :(

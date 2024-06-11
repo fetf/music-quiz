@@ -24,6 +24,9 @@ const commands = [
   new SlashCommandBuilder().setName('play').setDescription('Play a song from YouTube').addStringOption(option =>
     option.setName('link').setDescription('YouTube Link').setRequired(true)
   ),
+  new SlashCommandBuilder().setName('search').setDescription('Search for and play a video from YouTube').addStringOption(option =>
+    option.setName('query').setDescription('YouTube Search Query').setRequired(true)
+  ),
   new SlashCommandBuilder().setName('stop').setDescription('Stops/Pauses the current song'),
   new SlashCommandBuilder().setName('resume').setDescription('Resumes the current song in queue'),
 ]
