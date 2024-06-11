@@ -261,12 +261,12 @@ client.on('messageCreate', async message => {
 		if (message.author.bot) return;
 		const content = message.content.toLowerCase();
 		if (!global.scores.has(message.author.id)) { global.scores.set(message.author.id, 0); }
-		if (!global.songGuessed && stringSimilarity(content, global.song.toLowerCase(), 1) > 0.9) {
+		if (!global.songGuessed && stringSimilarity(content, global.song.toLowerCase(), 1) > 0.85) {
 			global.songGuessed = true;
 			message.react('✅');
 			global.scores.set(message.author.id, global.scores.get(message.author.id) + 1);
 			console.log(global.scores);
-		} else if (!global.artistGuessed && stringSimilarity(content, global.artist.toLowerCase(), 1) > 0.9) {
+		} else if (!global.artistGuessed && stringSimilarity(content, global.artist.toLowerCase(), 1) > 0.85) {
 			global.artistGuessed = true;
 			message.react('✅');
 			global.scores.set(message.author.id, global.scores.get(message.author.id) + 1);
