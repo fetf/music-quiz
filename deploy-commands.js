@@ -9,7 +9,7 @@ const commands = [
 
   // Music Quiz Commands
   new SlashCommandBuilder().setName('start-quiz').setDescription('Starts a music quiz').addStringOption(option =>
-    option.setName('playlist').setDescription('YouTube Playlist ID for Music Quiz')
+    option.setName('playlist').setDescription('YouTube Playlist ID for Music Quiz').setRequired(true)
   ).addIntegerOption(option =>
     option.setName('length').setDescription('Number of songs in Music Quiz')
   ),
