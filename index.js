@@ -41,8 +41,6 @@ client.playSong = function(url) {
 	return entersState(client.player, AudioPlayerStatus.Playing, 5000);
 }
 
-client.currTimer;
-
 client.Timer = function(callback, delay, p1, p2, p3) {
 	let timerId, start, remaining = delay;
 
