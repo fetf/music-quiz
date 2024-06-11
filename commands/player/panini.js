@@ -14,9 +14,8 @@ module.exports = (client) => {
                  * The user is in a voice channel, try to connect.
                  */
                 try {
-                    const url = "https://www.youtube.com/watch?v=hUE2DuMP9y8&pp=ygUXcGFuaW5pIGxpbCBuYXMgeCBkYWJhYnk%3D";
+                    const url = "https://www.youtube.com/watch?v=hUE2DuMP9y8";
                     await client.playSong(url);
-                    
 
                     const connection = await client.connectToChannel(channel);
 

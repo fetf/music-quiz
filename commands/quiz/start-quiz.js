@@ -4,7 +4,7 @@ module.exports = (client) => {
 	return {
 		data: new SlashCommandBuilder()
 			.setName('start-quiz')
-			.setDescription('Starts the Quiz')
+			.setDescription('Starts a music quiz')
 			.addStringOption(option =>
 				option.setName('playlist').setDescription('YouTube Playlist ID for Music Quiz').setRequired(true)
 			).addIntegerOption(option =>

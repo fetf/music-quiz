@@ -5,7 +5,7 @@ module.exports = (client) => {
 	return {
 		data: new SlashCommandBuilder()
 			.setName('end-quiz')
-			.setDescription('Ends the Quiz'),
+			.setDescription('Ends the current music quiz'),
 
 		async execute(interaction) {
 			if (client.activeQuiz) {
