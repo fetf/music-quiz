@@ -1,14 +1,12 @@
 {
-	"name": "basic-voice-bot",
+	"name": "music-quiz-bot",
 	"version": "1.0.0",
-	"description": "A proof-of-concept basic voice bot for @discordjs/voice",
-	"main": "dist/bot.js",
+	"description": "A music quiz and player bot to guess and play songs",
+	"main": "index.js",
 	"scripts": {
-		"start": "npm run build && node dist/bot.js",
-		"lint": "prettier --cache --check . && eslint src --ext mjs,js,ts --cache",
-		"format": "prettier --cache --write . && eslint src --ext mjs,js,ts --fix --cache",
-		"build": "rimraf dist && tsc",
-		"build:check": "tsc --noEmit --incremental false"
+		"start": "npm i && node index.js",
+		"build": "npm i",
+		"cleanrun": "./run"
 	},
 	"keywords": [
 		"discord",
@@ -19,8 +17,8 @@
 		"hardware",
 		"dj"
 	],
-	"author": "",
-	"license": "UNLICENSE",
+	"author": "@RichardSba, @notvictorl",
+	"license": "MIT",
 	"dependencies": {
 		"@discordjs/voice": "^0.17.0",
 		"@distube/ytdl-core": "^4.13.4",
