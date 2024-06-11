@@ -15,9 +15,9 @@ const commands = [
   ),
   new SlashCommandBuilder().setName('end-quiz').setDescription('Ends the current music quiz'),
   new SlashCommandBuilder().setName('skip').setDescription('Skips the current song playing'),
-  new SlashCommandBuilder().setName('playlist').setDescription('Sets the playlist to take songs from').addStringOption(option =>
+  /*new SlashCommandBuilder().setName('playlist').setDescription('Sets the playlist to take songs from').addStringOption(option =>
     option.setName('id').setDescription('YouTube Playlist ID').setRequired(true)
-  ),
+  ),*/
 
   // Music Player Commands
   new SlashCommandBuilder().setName('panini').setDescription('panini'),
