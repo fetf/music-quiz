@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-module.exports = () => {
+module.exports = (client) => {
 	return {
 		data: new SlashCommandBuilder()
 			.setName('stop')
