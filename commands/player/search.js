@@ -9,7 +9,7 @@ module.exports = (client) => {
             ),
 
 		async execute(interaction) {
-			client.player.unpause();
+			
             const channel = interaction.member?.voice.channel;
             if (channel) {
                 /**
@@ -17,13 +17,15 @@ module.exports = (client) => {
                  */
                 try {
                     const videos = await client.youtube.search(interaction.options.getString('query'), {type: "video"});
+
                     
                     try{
                         await client.playSong("https://www.youtube.com/watch?v=" + videos.items[0].id);
                     } catch {
-                        await interaction.reply('Invalid URL');
+                        await interaction.reply('Invalid Query');
                         return;
                     }
+                    client.player.unpause();
 
 
                     const connection = await client.connectToChannel(channel);

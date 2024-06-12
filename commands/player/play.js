@@ -9,7 +9,7 @@ module.exports = (client) => {
             ),
 
 		async execute(interaction) {
-			client.player.unpause();
+			
             const channel = interaction.member?.voice.channel;
             if (channel) {
                 // The user is in a voice channel, try to connect.
@@ -24,6 +24,7 @@ module.exports = (client) => {
                         await interaction.reply('Invalid URL');
                         return;
                     }
+                    client.player.unpause();
 
                     const connection = await client.connectToChannel(channel);
 
