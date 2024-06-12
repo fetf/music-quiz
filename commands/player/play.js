@@ -15,7 +15,15 @@ module.exports = (client) => {
                 // The user is in a voice channel, try to connect.
                 try {
                     const url = interaction.options.getString('link');
-                    const videos = await client.youtube.search(interaction.options.getString('link'), {type: "video"});
+
+                    let regex = /(\/watch\?v=[^&]*)|(youtu\.be\/[^?]*)/.exec(url);
+                    
+
+                    let id = regex[0].substring(9);
+
+                    console.log(id);
+
+                    const videos = await client.youtube.getVideo(id);
 
                     try{
                         await client.playSong(url);
@@ -35,10 +43,10 @@ module.exports = (client) => {
                     
                     const songEmbed = new EmbedBuilder()
                         .setColor(0xFFB7C5)
-                        .setTitle(videos.items[0].title)
-                        .setURL("https://www.youtube.com/watch?v=" + videos.items[0].id)
-                        .setDescription( videos.items[0].channel.name )
-                        .setImage(videos.items[0].thumbnails[0].url);
+                        .setTitle(videos.title)
+                        .setURL("https://www.youtube.com/watch?v=" + videos.id)
+                        .setDescription( videos.channel.name )
+                        .setImage(videos.thumbnails.best );
 
                     
                     await interaction.reply("**Playing Now:**");
