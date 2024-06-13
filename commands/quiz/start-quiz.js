@@ -13,7 +13,6 @@ module.exports = (client) => {
 
 		async execute(interaction) {
 			if (!client.activeQuiz) {
-				client.player.unpause();
 				const channel = interaction.member?.voice.channel;
 				if (channel) {
 					/**
@@ -34,6 +33,7 @@ module.exports = (client) => {
 	
 						try{
 							await client.playSongList(videos, 0, interaction.channel);
+							client.player.unpause();
 						} catch (error) {
 							console.error(error);
 							await interaction.reply('Invalid Playlist');
