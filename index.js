@@ -274,30 +274,26 @@ client.on('messageCreate', async message => {
 		}
 		const content = message.content.toLowerCase();
 		if (!client.scores.has(message.author.id)) { client.scores.set(message.author.id, 0); }
-		if (!songGuessed) {
-			if (stringSimilarity(content, song.toLowerCase(), 1) > 0.85) {
-				songGuessed = true;
-				message.react('✅');
-				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-				console.log(client.scores);
-			} else if (hasFtT && stringSimilarity(content, titleNoFt, 1) > 0.85) {
-				songGuessed = true;
-				message.react('✅');
-				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-				console.log(client.scores);
-			}
-		} else if (!artistGuessed) {
-			if (stringSimilarity(content, artist.toLowerCase(), 1) > 0.85) {
-				artistGuessed = true;
-				message.react('✅');
-				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-				console.log(client.scores);
-			} else if (hasFtA && stringSimilarity(content, artistNoFt, 1) > 0.85) {
-				artistGuessed = true;
-				message.react('✅');
-				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-				console.log(client.scores);
-			}
+		if (!songGuessed && stringSimilarity(content, song.toLowerCase(), 1) > 0.85) {
+			songGuessed = true;
+			message.react('✅');
+			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+			console.log(client.scores);
+		} else if (!songGuessed && hasFtT && stringSimilarity(content, titleNoFt, 1) > 0.85) {
+			songGuessed = true;
+			message.react('✅');
+			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+			console.log(client.scores);
+		} else if (!artistGuessed && stringSimilarity(content, artist.toLowerCase(), 1) > 0.85) {
+			artistGuessed = true;
+			message.react('✅');
+			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+			console.log(client.scores);
+		} else if (!artistGuessed && hasFtA && stringSimilarity(content, artistNoFt, 1) > 0.85) {
+			artistGuessed = true;
+			message.react('✅');
+			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+			console.log(client.scores);
 		} else {
 			message.react('❌');
 		}
