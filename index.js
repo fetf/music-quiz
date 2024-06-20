@@ -65,8 +65,10 @@ const mutex = new Mutex();
 const queue = new Queue();
 
 const regex = /^(.+?)\s*\(.*\)$/;
-let hasFt = false; // if the title has parentheses
+let hasFtT = false; // if the title has parentheses
+let hasFtA = false; // if the artist has parentheses
 let titleNoFt;
+let artistNoFt;
 let song;
 let artist;
 let songGuessed = false;
@@ -176,15 +178,21 @@ client.playSongList = async function(videos, index, channel) {
 	 * at least one voice connection is subscribed to it, so it is fine to attach our resource to the
 	 * audio player this early.
 	 */
-	let songM = await music.search(videos[index].title + " " + videos[index].channel.name, "song");
-
+	let search = videos[index].title;
+	let songM = await music.search(search, "song");
+	console.log('Searching: ' + search);
 	
 	song = songM.items[0].title;
 	artist = songM.items[0].artists[0].name;
-	hasFt = regex.test(song);
-	if (hasFt) {
+	hasFtT = regex.test(song);
+	hasFtA = regex.test(artist);
+	if (hasFtT) {
 		const match = song.match(regex);
 		titleNoFt = match[1].toLowerCase();
+	};
+	if (hasFtA) {
+		const match = artist.match(regex);
+		artistNoFt = match[1].toLowerCase();
 	};
 	songGuessed = false;
 	artistGuessed = false;
@@ -257,21 +265,30 @@ client.on('messageCreate', async message => {
 		}
 		const content = message.content.toLowerCase();
 		if (!client.scores.has(message.author.id)) { client.scores.set(message.author.id, 0); }
-		if (!songGuessed && (stringSimilarity(content, song.toLowerCase(), 1) > 0.85)) {
-			songGuessed = true;
-			message.react('✅');
-			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-			console.log(client.scores);
-		} else if (!songGuessed && hasFt && stringSimilarity(content, titleNoFt, 1) > 0.85) {
-			songGuessed = true;
-			message.react('✅');
-			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-			console.log(client.scores);
-		} else if (!artistGuessed && stringSimilarity(content, artist.toLowerCase(), 1) > 0.85) {
-			artistGuessed = true;
-			message.react('✅');
-			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-			console.log(client.scores);
+		if (!songGuessed) {
+			if (stringSimilarity(content, song.toLowerCase(), 1) > 0.85) {
+				songGuessed = true;
+				message.react('✅');
+				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+				console.log(client.scores);
+			} else if (hasFtT && stringSimilarity(content, titleNoFt, 1) > 0.85) {
+				songGuessed = true;
+				message.react('✅');
+				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+				console.log(client.scores);
+			}
+		} else if (!artistGuessed) {
+			if (stringSimilarity(content, artist.toLowerCase(), 1) > 0.85) {
+				artistGuessed = true;
+				message.react('✅');
+				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+				console.log(client.scores);
+			} else if (hasFtA && stringSimilarity(content, artistNoFt, 1) > 0.85) {
+				artistGuessed = true;
+				message.react('✅');
+				client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+				console.log(client.scores);
+			}
 		} else {
 			message.react('❌');
 		}
