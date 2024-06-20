@@ -178,12 +178,21 @@ client.playSongList = async function(videos, index, channel) {
 	 * at least one voice connection is subscribed to it, so it is fine to attach our resource to the
 	 * audio player this early.
 	 */
-	let search = videos[index].title;
-	let songM = await music.search(search, "song");
-	console.log('Searching: ' + search);
+	let songM = await music.search(videos[index].title + " " + videos[index].channel.name, "song");
+	//console.log('Searching: ' + search);
+
+	let itemToUse = songM.items[0];
+	let bestSimilar = 0;
+	for(let j = 0; j<songM.items.length; j++){
+		let similar = stringSimilarity(songM.items[j].title.toLowerCase(), videos[index].title.toLowerCase());
+		if(similar > bestSimilar){
+			itemToUse = songM.items[j];
+			bestSimilar = similar;
+		}
+	}
 	
-	song = songM.items[0].title;
-	artist = songM.items[0].artists[0].name;
+	song = itemToUse.title;
+	artist = itemToUse.artists[0].name;
 	hasFtT = regex.test(song);
 	hasFtA = regex.test(artist);
 	if (hasFtT) {
