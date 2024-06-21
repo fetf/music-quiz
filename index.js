@@ -14,7 +14,7 @@ const {
 	AudioPlayerStatus,
 	VoiceConnectionStatus,
 } = require('@discordjs/voice');
-const { token } = require('../config.json');
+const { token } = require('./config.json');
 
 class Queue {
 	constructor() {
