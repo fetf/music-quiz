@@ -14,7 +14,7 @@ const {
 	AudioPlayerStatus,
 	VoiceConnectionStatus,
 } = require('@discordjs/voice');
-const { token } = require('./config.json');
+const { token } = require('../config.json');
 
 class Queue {
 	constructor() {
@@ -64,11 +64,14 @@ const music = new MusicClient();
 const mutex = new Mutex();
 const queue = new Queue();
 
-const regex = /^(.+?)\s*\(.*\)$/;
+const regexFt = /^(.+?)\s*\(.*\)$/;
+const regexAlphanumeric = /([a-zA-Z0-9]+)/;
 let hasFtT = false; // if the title has parentheses
 let hasFtA = false; // if the artist has parentheses
+let hasMixedTitle = false; // if the title has mixed language / characters
 let titleNoFt;
 let artistNoFt;
+let titleNoMixed;
 let song;
 let artist;
 let songGuessed = false;
@@ -193,14 +196,14 @@ client.playSongList = async function(videos, index, channel) {
 	
 	song = itemToUse.title;
 	artist = itemToUse.artists[0].name;
-	hasFtT = regex.test(song);
-	hasFtA = regex.test(artist);
+	hasFtT = regexFt.test(song);
+	hasFtA = regexFt.test(artist);
 	if (hasFtT) {
-		const match = song.match(regex);
+		const match = song.match(regexFt);
 		titleNoFt = match[1].toLowerCase();
 	};
 	if (hasFtA) {
-		const match = artist.match(regex);
+		const match = artist.match(regexFt);
 		artistNoFt = match[1].toLowerCase();
 	};
 	songGuessed = false;
