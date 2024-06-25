@@ -17,8 +17,7 @@ Optionally, you can set the length of songs played:
 ```
 
 Earn points by sending a message with the song title or artist name:
-(include image example)
-
+![ex image](https://github.com/fetf/music-quiz/assets/67168434/47a53171-0c9b-4a51-b011-b3d855907679)
 
 To end the quiz:
 ```
