@@ -32,7 +32,7 @@ Make sure to enable **Message Content Intent** in Bot > Privileged Gateway Inten
 
 Copy the files and make sure to have `npm`
 
-Create a `config.json` with the following (replace `CLIENT_ID` and `DISCORD_TOKEN` with your bots):
+Edit `config.json` with the following (replace `CLIENT_ID` and `DISCORD_TOKEN` with your bots):
 ```
 {
     "clientId": "CLIENT_ID",
