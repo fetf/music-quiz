@@ -64,14 +64,16 @@ const music = new MusicClient();
 const mutex = new Mutex();
 const queue = new Queue();
 
-const regexFt = /^(.+?)\s*\(.*\)$/;
-const regexAlphanumeric = /([a-zA-Z0-9]+)/;
+const regexFt = /^(.+?)\s*\((.*)\)$/;
+const regexAlphanumeric = /[a-zA-Z0-9]+/g;
 let hasFtT = false; // if the title has parentheses
 let hasFtA = false; // if the artist has parentheses
-let hasMixedTitle = false; // if the title has mixed language / characters
+let has2ndTitle = false;
 let titleNoFt;
 let artistNoFt;
-let titleNoMixed;
+let alphanumericTitle;
+let secondTitle;
+let youtubeTitle;
 let song;
 let artist;
 let songGuessed = false;
@@ -195,12 +197,20 @@ client.playSongList = async function(videos, index, channel) {
 	}
 	
 	song = itemToUse.title;
-	artist = itemToUse.artists[0].name;
+	youtubeTitle = videos[index].title.toLowerCase();
+	console.log('YouTube Title: ' + youtubeTitle);
+	artist = songM.items[0].artists[0].name;
 	hasFtT = regexFt.test(song);
 	hasFtA = regexFt.test(artist);
+	alphanumericTitle = song.match(regexAlphanumeric).join(' ').toLowerCase();
 	if (hasFtT) {
 		const match = song.match(regexFt);
 		titleNoFt = match[1].toLowerCase();
+		const secondMatch = match[2].toLowerCase();
+		if (!(secondMatch.includes('feat') || secondMatch.includes('from') || secondMatch.includes('edit') || secondMatch.includes('live'))) {
+			has2ndTitle = true;
+			secondTitle = secondMatch;
+		}
 	};
 	if (hasFtA) {
 		const match = artist.match(regexFt);
@@ -213,8 +223,6 @@ client.playSongList = async function(videos, index, channel) {
 	mutex.release(); //console.log("play released");
 
 	client.player.play(resource);
-	
-	
 
 	/**
 	 * Here we are using a helper function. It will resolve if the player enters the Playing
@@ -269,6 +277,18 @@ for (const folder of commandFolders) {
 }
 
 client.on('messageCreate', async message => {
+	function correctSong() {
+		songGuessed = true;
+		message.react('✅');
+		client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+		console.log(client.scores);
+	};
+	function correctArtist() {
+		artistGuessed = true;
+		message.react('✅');
+		client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
+		console.log(client.scores);
+	};
 	await mutex.acquire();
 	if (client.activeQuiz && client.channelId === message.channelId) {
 		if (message.author.bot) {
@@ -278,25 +298,19 @@ client.on('messageCreate', async message => {
 		const content = message.content.toLowerCase();
 		if (!client.scores.has(message.author.id)) { client.scores.set(message.author.id, 0); }
 		if (!songGuessed && stringSimilarity(content, song.toLowerCase(), 1) > 0.85) {
-			songGuessed = true;
-			message.react('✅');
-			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-			console.log(client.scores);
+			correctSong();
 		} else if (!songGuessed && hasFtT && stringSimilarity(content, titleNoFt, 1) > 0.85) {
-			songGuessed = true;
-			message.react('✅');
-			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-			console.log(client.scores);
+			correctSong();
+		} else if (!songGuessed && stringSimilarity(content, youtubeTitle, 1) > 0.85) {
+			correctSong();
+		} else if (!songGuessed && stringSimilarity(content, alphanumericTitle, 1) > 0.85) {
+			correctSong();
+		} else if (!songGuessed && has2ndTitle && stringSimilarity(content, secondTitle, 1) > 0.85) {
+			correctSong();
 		} else if (!artistGuessed && stringSimilarity(content, artist.toLowerCase(), 1) > 0.85) {
-			artistGuessed = true;
-			message.react('✅');
-			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-			console.log(client.scores);
+			correctArtist();
 		} else if (!artistGuessed && hasFtA && stringSimilarity(content, artistNoFt, 1) > 0.85) {
-			artistGuessed = true;
-			message.react('✅');
-			client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-			console.log(client.scores);
+			correctArtist();
 		} else {
 			message.react('❌');
 		}
