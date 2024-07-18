@@ -16,16 +16,17 @@ module.exports = (client) => {
                  * The user is in a voice channel, try to connect.
                  */
                 try {
+                    let inst = client.getInstance(interaction.guildId)
                     const videos = await client.youtube.search(interaction.options.getString('query'), {type: "video"});
 
                     
                     try{
-                        await client.playSong("https://www.youtube.com/watch?v=" + videos.items[0].id);
+                        await client.playSong("https://www.youtube.com/watch?v=" + videos.items[0].id, inst);
                     } catch {
                         await interaction.reply('Invalid Query');
                         return;
                     }
-                    client.player.unpause();
+                    inst.player.unpause();
 
 
                     const connection = await client.connectToChannel(channel);
@@ -34,7 +35,7 @@ module.exports = (client) => {
                         console.log(`Connection transitioned from ${oldState.status} to ${newState.status}`);
                     });
 
-                    connection.subscribe(client.player);
+                    connection.subscribe(inst.player);
 
                     const songEmbed = new EmbedBuilder()
                         .setColor(0xFFB7C5)
