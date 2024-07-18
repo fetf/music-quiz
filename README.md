@@ -47,7 +47,12 @@ https://discord.com/api/oauth2/authorize?client_id=CLIENT_ID&permissions=8&scope
 
 Bare minimum permissions: `1126451813370944`
 
-Run the bot with:
+Deploy bot commands with:
+```
+npm run deploy
+```
+
+Then run the bot with:
 ```
 npm start
 ```
