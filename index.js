@@ -148,19 +148,31 @@ client.Timer = function(callback, delay, p1, p2, p3, inst) {
 };
 
 client.connectToChannel = async function(channel) {
-	const connection = joinVoiceChannel({
-		channelId: channel.id,
-		guildId: channel.guild.id,
-		adapterCreator: channel.guild.voiceAdapterCreator,
-	})
+    const connection = joinVoiceChannel({
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        adapterCreator: channel.guild.voiceAdapterCreator,
+    })
 
-	try {
-		await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
-		return connection
-	} catch (error) {
-		connection.destroy()
-		throw error
-	}
+    connection.on(VoiceConnectionStatus.Disconnected, async () => {
+        try {
+            await Promise.race([
+                entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+                entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+            ]);
+        } catch (error) {
+            client.map.delete(channel.guild.id)
+            connection.destroy();
+        }
+    });
+
+    try {
+        await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
+        return connection
+    } catch (error) {
+        connection.destroy()
+        throw error
+    }
 }
 
 client.playSongList = async function(videos, index, channel, inst) {
