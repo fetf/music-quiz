@@ -269,7 +269,7 @@ client.playSongList = async function(videos, index, channel, inst) {
 	};
 	inst.songGuessed = false;
 	inst.artistGuessed = false;
-	console.log(inst.song);
+	console.log(song);
 	console.log(artist);
 	inst.mutex.release(); //console.log("play released");
 

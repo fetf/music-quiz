@@ -37,7 +37,7 @@ module.exports = (client) => {
 
                     const connection = await client.connectToChannel(channel);
 
-                    connection.on('stateChange', (oldState, newState) => {
+                    connection.once('stateChange', (oldState, newState) => {
                         console.log(`Connection transitioned from ${oldState.status} to ${newState.status}`);
                     });
                     connection.subscribe(inst.player);
