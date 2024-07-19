@@ -69,9 +69,11 @@ client.newInstance = function(){
 	inst.hasFtT = false; // if the title has parentheses
 	inst.hasFtA = false; // if the artist has parentheses
 	inst.hasMixedTitle = false; // if the title has mixed language / characters
+	inst.has2ndTitle = false;
 	inst.titleNoFt;
 	inst.artistNoFt;
 	inst.alphanumericTitle;
+	inst.secondTitle;
 	inst.song;
 	inst.artist;
 	inst.songGuessed = false;
@@ -109,8 +111,8 @@ client.youtube = new YTClient();
 const music = new MusicClient();
 const queue = new Queue();
 
-const regexFt = /^(.+?)\s*\(.*\)$/;
-const regexAlphanumeric = /([a-zA-Z0-9]+)/;
+const regexFt = /^(.+?)\s*\((.*)\)$/;
+const regexAlphanumeric = /([a-zA-Z0-9]+)/g;
 
 client.playSong = function(url, inst) {
 	const stream = ytdl(url, {filter: 'audioonly'});
@@ -225,21 +227,29 @@ client.playSongList = async function(videos, index, channel, inst) {
 		}
 	}
 	
-	let song = inst.song = itemToUse.title;
-	inst.youtubeTitle = videos[index].title.toLowerCase();
+	// temporarily switching song title and youtube title
+	// let song = inst.song = itemToUse.title;
+	// inst.youtubeTitle = videos[index].title.toLowerCase();
+	let song = inst.song = videos[index].title;
+	inst.youtubeTitle = itemToUse.title.toLowerCase();
+	
 	console.log('YouTube Title: ' + inst.youtubeTitle);
 	let artist = inst.artist = songM.items[0].artists[0].name;
 	inst.hasFtT = regexFt.test(song);
 	inst.hasFtA = regexFt.test(artist);
 	inst.alphanumericTitle = song.match(regexAlphanumeric).join(' ').toLowerCase();
+	console.log('Alphanum Title: ' + inst.alphanumericTitle);
 	if (inst.hasFtT) {
 		const match = song.match(regexFt);
 		inst.titleNoFt = match[1].toLowerCase();
-		const secondMatch = match[2].toLowerCase();
-		if (!(secondMatch.includes('feat') || secondMatch.includes('from') || secondMatch.includes('edit') || secondMatch.includes('live'))) {
-			inst.has2ndTitle = true;
-			inst.secondTitle = secondMatch;
-		}
+		// const secondMatch = match[2].toLowerCase();
+		// if (!secondMatch.includes('feat') && !secondMatch.includes('from') &&
+		// 	!secondMatch.includes('edit') && !secondMatch.includes('live') &&
+		// 	!secondMatch.includes('remix') && !secondMatch.includes('ft')
+		//    ) {
+		// 	inst.has2ndTitle = true;
+		// 	inst.secondTitle = secondMatch;
+		// }
 	};
 	if (inst.hasFtA) {
 		const match = artist.match(regexFt);
@@ -247,7 +257,7 @@ client.playSongList = async function(videos, index, channel, inst) {
 	};
 	inst.songGuessed = false;
 	inst.artistGuessed = false;
-	console.log(song);
+	console.log(inst.song);
 	console.log(artist);
 	inst.mutex.release(); //console.log("play released");
 
@@ -331,17 +341,17 @@ client.on('messageCreate', async message => {
 		let artistGuessed = inst.artistGuessed;
 		if (!songGuessed && stringSimilarity(content, inst.song.toLowerCase(), 1) > 0.85) {
 			correctSong();
-		} else if (!songGuessed && hasFtT && stringSimilarity(content, inst.titleNoFt, 1) > 0.85) {
+		} else if (!songGuessed && inst.hasFtT && stringSimilarity(content, inst.titleNoFt, 1) > 0.85) {
 			correctSong();
 		} else if (!songGuessed && stringSimilarity(content, inst.youtubeTitle, 1) > 0.85) {
 			correctSong();
 		} else if (!songGuessed && stringSimilarity(content, inst.alphanumericTitle, 1) > 0.85) {
 			correctSong();
-		} else if (!songGuessed && has2ndTitle && stringSimilarity(content, inst.secondTitle, 1) > 0.85) {
+		} else if (!songGuessed && inst.has2ndTitle && stringSimilarity(content, inst.secondTitle, 1) > 0.85) {
 			correctSong();
 		} else if (!artistGuessed && stringSimilarity(content, inst.artist.toLowerCase(), 1) > 0.85) {
 			correctArtist();
-		} else if (!artistGuessed && hasFtA && stringSimilarity(content, inst.artistNoFt, 1) > 0.85) {
+		} else if (!artistGuessed && inst.hasFtA && stringSimilarity(content, inst.artistNoFt, 1) > 0.85) {
 			correctArtist();
 		} else {
 			message.react('❌');
