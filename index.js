@@ -58,40 +58,68 @@ const client = new Client({
 		GatewayIntentBits.MessageContent,
 	],
 });
+
+
+client.map = new Map();
+
+client.newInstance = function(){
+	let inst = new Object();
+	inst.mutex = new Mutex();
+
+	inst.hasFtT = false; // if the title has parentheses
+	inst.hasFtA = false; // if the artist has parentheses
+	inst.hasMixedTitle = false; // if the title has mixed language / characters
+	inst.titleNoFt;
+	inst.artistNoFt;
+	inst.alphanumericTitle;
+	inst.song;
+	inst.artist;
+	inst.songGuessed = false;
+	inst.artistGuessed = false;
+
+	inst.activeQuiz = false;
+	inst.scores = new Map();
+
+	inst.player = createAudioPlayer();
+	inst.id;
+	inst.currTimer;
+	inst.channelId;
+	/*
+	inst.player.on('stateChange', (oldState, newState) => {
+		console.log(`Audio player transitioned from ${oldState.status} to ${newState.status}`);
+	});*/
+
+	return inst
+}
+
+
+client.getInstance = function(id){
+	let inst = client.map.get(id)
+	if(inst != undefined){
+		return inst
+	}
+	inst = client.newInstance()
+	client.map.set(id, inst)
+	return inst
+}
+
+
 client.youtube = new YTClient();
 
 const music = new MusicClient();
-const mutex = new Mutex();
 const queue = new Queue();
 
-const regexFt = /^(.+?)\s*\((.*)\)$/;
-const regexAlphanumeric = /[a-zA-Z0-9]+/g;
-let hasFtT = false; // if the title has parentheses
-let hasFtA = false; // if the artist has parentheses
-let has2ndTitle = false;
-let titleNoFt;
-let artistNoFt;
-let alphanumericTitle;
-let secondTitle;
-let youtubeTitle;
-let song;
-let artist;
-let songGuessed = false;
-let artistGuessed = false;
+const regexFt = /^(.+?)\s*\(.*\)$/;
+const regexAlphanumeric = /([a-zA-Z0-9]+)/;
 
-client.player = createAudioPlayer();
-client.player.on('stateChange', (oldState, newState) => {
-	console.log(`Audio player transitioned from ${oldState.status} to ${newState.status}`);
-});
-
-client.playSong = function(url) {
+client.playSong = function(url, inst) {
 	const stream = ytdl(url, {filter: 'audioonly'});
 	const resource = createAudioResource(stream);
-	client.player.play(resource);
-	return entersState(client.player, AudioPlayerStatus.Playing, 5000);
+	inst.player.play(resource);
+	return entersState(inst.player, AudioPlayerStatus.Playing, 5000);
 }
 
-client.Timer = function(callback, delay, p1, p2, p3) {
+client.Timer = function(callback, delay, p1, p2, p3, inst) {
 	let timerId, start, remaining = delay;
 
 	this.pause = function() {
@@ -102,7 +130,7 @@ client.Timer = function(callback, delay, p1, p2, p3) {
 
 	this.finish = async function() {
 		clearTimeout(timerId);
-		await client.playSongList(p1, p2, p3);
+		await client.playSongList(p1, p2, p3, inst);
 	}
 
 	this.resume = function() {
@@ -111,7 +139,7 @@ client.Timer = function(callback, delay, p1, p2, p3) {
 		}
 
 		start = Date.now();
-		timerId = setTimeout(callback, remaining, p1, p2, p3);
+		timerId = setTimeout(callback, remaining, p1, p2, p3, inst);
 	};
 
 	this.resume();
@@ -133,16 +161,17 @@ client.connectToChannel = async function(channel) {
 	}
 }
 
-client.playSongList = async function(videos, index, channel) {
-	await mutex.acquire(); //console.log("play aquired");
+client.playSongList = async function(videos, index, channel, inst) {
+	//let inst = client.getInstance(id)
+	await inst.mutex.acquire(); //console.log("play aquired");
 
 	if(index > 0){
-		const scoresString = Array.from(client.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
+		const scoresString = Array.from(inst.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
 		const songEmbed = new EmbedBuilder()
 			.setColor(0xFFB7C5)
-			.setTitle(song)
+			.setTitle(inst.song)
 			.setAuthor({ name: 'Music Quiz: Song #' + index.toString()})
-			.setDescription( artist )
+			.setDescription( inst.artist )
 			.addFields(
 				{ name: 'Placements', value: scoresString }
 			)
@@ -153,8 +182,8 @@ client.playSongList = async function(videos, index, channel) {
 	}
 
 	if(videos.length == index){
-		client.player.pause();
-		const scoresString = Array.from(client.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
+		inst.player.pause();
+		const scoresString = Array.from(inst.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
 		const overEmbed = new EmbedBuilder()
 			.setColor(0xFFB7C5)
 			.setTitle("Music Quiz Final Score:")
@@ -163,8 +192,8 @@ client.playSongList = async function(videos, index, channel) {
 			)
 		
 		channel.send({ embeds: [overEmbed] });
-		client.activeQuiz = false;
-		client.scores.clear();
+		inst.activeQuiz = false;
+		inst.scores.clear();
 		//channel.send("Quiz Over");
 		return;
 	}
@@ -196,41 +225,43 @@ client.playSongList = async function(videos, index, channel) {
 		}
 	}
 	
-	song = itemToUse.title;
-	youtubeTitle = videos[index].title.toLowerCase();
-	console.log('YouTube Title: ' + youtubeTitle);
-	artist = songM.items[0].artists[0].name;
-	hasFtT = regexFt.test(song);
-	hasFtA = regexFt.test(artist);
-	alphanumericTitle = song.match(regexAlphanumeric).join(' ').toLowerCase();
-	if (hasFtT) {
+	let song = inst.song = itemToUse.title;
+	inst.youtubeTitle = videos[index].title.toLowerCase();
+	console.log('YouTube Title: ' + inst.youtubeTitle);
+	let artist = inst.artist = songM.items[0].artists[0].name;
+	inst.hasFtT = regexFt.test(song);
+	inst.hasFtA = regexFt.test(artist);
+	inst.alphanumericTitle = song.match(regexAlphanumeric).join(' ').toLowerCase();
+	if (inst.hasFtT) {
 		const match = song.match(regexFt);
-		titleNoFt = match[1].toLowerCase();
+		inst.titleNoFt = match[1].toLowerCase();
 		const secondMatch = match[2].toLowerCase();
 		if (!(secondMatch.includes('feat') || secondMatch.includes('from') || secondMatch.includes('edit') || secondMatch.includes('live'))) {
-			has2ndTitle = true;
-			secondTitle = secondMatch;
+			inst.has2ndTitle = true;
+			inst.secondTitle = secondMatch;
 		}
 	};
-	if (hasFtA) {
+	if (inst.hasFtA) {
 		const match = artist.match(regexFt);
-		artistNoFt = match[1].toLowerCase();
+		inst.artistNoFt = match[1].toLowerCase();
 	};
-	songGuessed = false;
-	artistGuessed = false;
+	inst.songGuessed = false;
+	inst.artistGuessed = false;
 	console.log(song);
 	console.log(artist);
-	mutex.release(); //console.log("play released");
+	inst.mutex.release(); //console.log("play released");
 
-	client.player.play(resource);
+	inst.player.play(resource);
+	
+	
 
 	/**
 	 * Here we are using a helper function. It will resolve if the player enters the Playing
 	 * state within 5 seconds, otherwise it will reject with an error.
 	 */
 	//currTimeoutID = setTimeout(playSongList, 15000, videos, index+1, channel);
-	client.currTimer = new client.Timer(client.playSongList, 30000, videos, index+1, channel);
-	return entersState(client.player, AudioPlayerStatus.Playing, 5000);
+	inst.currTimer = new client.Timer(client.playSongList, 30000, videos, index+1, channel, inst);
+	return entersState(inst.player, AudioPlayerStatus.Playing, 5000);
 
 
 }
@@ -248,10 +279,7 @@ client.shuffle = function(array) {
 
 client.once('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
-	client.activeQuiz = false;
-	songGuessed = false;
-	artistGuessed = false;
-	client.scores = new Map();
+	
 });
 
 
@@ -277,53 +305,60 @@ for (const folder of commandFolders) {
 }
 
 client.on('messageCreate', async message => {
+	let inst = client.getInstance(message.guildId);
 	function correctSong() {
-		songGuessed = true;
+		inst.songGuessed = true;
 		message.react('✅');
-		client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-		console.log(client.scores);
+		inst.scores.set(message.author.id, inst.scores.get(message.author.id) + 1);
+		console.log(inst.scores);
 	};
 	function correctArtist() {
-		artistGuessed = true;
+		inst.artistGuessed = true;
 		message.react('✅');
-		client.scores.set(message.author.id, client.scores.get(message.author.id) + 1);
-		console.log(client.scores);
+		inst.scores.set(message.author.id, inst.scores.get(message.author.id) + 1);
+		console.log(inst.scores);
 	};
-	await mutex.acquire();
-	if (client.activeQuiz && client.channelId === message.channelId) {
+	
+	await inst.mutex.acquire();
+	if (inst.activeQuiz && inst.channelId === message.channelId) {
 		if (message.author.bot) {
-			mutex.release();
+			inst.mutex.release();
 			return;
 		}
 		const content = message.content.toLowerCase();
-		if (!client.scores.has(message.author.id)) { client.scores.set(message.author.id, 0); }
-		if (!songGuessed && stringSimilarity(content, song.toLowerCase(), 1) > 0.85) {
+		if (!inst.scores.has(message.author.id)) { inst.scores.set(message.author.id, 0); }
+		let songGuessed = inst.songGuessed;
+		let artistGuessed = inst.artistGuessed;
+		if (!songGuessed && stringSimilarity(content, inst.song.toLowerCase(), 1) > 0.85) {
 			correctSong();
-		} else if (!songGuessed && hasFtT && stringSimilarity(content, titleNoFt, 1) > 0.85) {
+		} else if (!songGuessed && hasFtT && stringSimilarity(content, inst.titleNoFt, 1) > 0.85) {
 			correctSong();
-		} else if (!songGuessed && stringSimilarity(content, youtubeTitle, 1) > 0.85) {
+		} else if (!songGuessed && stringSimilarity(content, inst.youtubeTitle, 1) > 0.85) {
 			correctSong();
-		} else if (!songGuessed && stringSimilarity(content, alphanumericTitle, 1) > 0.85) {
+		} else if (!songGuessed && stringSimilarity(content, inst.alphanumericTitle, 1) > 0.85) {
 			correctSong();
-		} else if (!songGuessed && has2ndTitle && stringSimilarity(content, secondTitle, 1) > 0.85) {
+		} else if (!songGuessed && has2ndTitle && stringSimilarity(content, inst.secondTitle, 1) > 0.85) {
 			correctSong();
-		} else if (!artistGuessed && stringSimilarity(content, artist.toLowerCase(), 1) > 0.85) {
+		} else if (!artistGuessed && stringSimilarity(content, inst.artist.toLowerCase(), 1) > 0.85) {
 			correctArtist();
-		} else if (!artistGuessed && hasFtA && stringSimilarity(content, artistNoFt, 1) > 0.85) {
+		} else if (!artistGuessed && hasFtA && stringSimilarity(content, inst.artistNoFt, 1) > 0.85) {
 			correctArtist();
 		} else {
 			message.react('❌');
 		}
-		if(songGuessed && artistGuessed){
-			mutex.release();
-			await client.currTimer.finish();
+		if(inst.songGuessed && inst.artistGuessed){
+			inst.mutex.release();
+			await inst.currTimer.finish();
 		}
 	}
-	mutex.release();
+	inst.mutex.release();
 });
 
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
+
+	let inst = client.getInstance(interaction.guildId)
+	inst.id = interaction.commandguildId;
 
 	const { commandName } = interaction;
 	console.log(commandName);
@@ -336,7 +371,7 @@ client.on('interactionCreate', async interaction => {
 	}
 
 	try {
-		await command.execute(interaction);
+		await command.execute(interaction, inst);
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {

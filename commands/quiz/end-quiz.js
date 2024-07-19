@@ -8,12 +8,13 @@ module.exports = (client) => {
 			.setDescription('Ends the current music quiz'),
 
 		async execute(interaction) {
-			if (client.activeQuiz) {
+			let inst = client.getInstance(interaction.guildId)
+			if (inst.activeQuiz) {
 				const message = await interaction.reply({ content: 'Music Quiz Ended!', fetchReply: true });
-				client.activeQuiz = false;
-				client.player.pause();
-				client.currTimer.pause();
-				const scoresString = Array.from(client.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
+				inst.activeQuiz = false;
+				inst.player.pause();
+				inst.currTimer.pause();
+				const scoresString = Array.from(inst.scores.entries()).map(([userId, score]) => `<@${userId}>: ${score}`).join('\n');
 				const overEmbed = new EmbedBuilder()
 					.setColor(0xFFB7C5)
 					.setTitle("Music Quiz Final Score:")
@@ -23,7 +24,7 @@ module.exports = (client) => {
 
 				message.channel.send({ embeds: [overEmbed] });
 				message.react('😭');
-				client.scores.clear();
+				inst.scores.clear();
 			} else {
 				await interaction.reply('Music Quiz not started');
 			}

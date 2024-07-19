@@ -7,15 +7,15 @@ module.exports = (client) => {
             .setDescription('panini'),
 
         async execute(interaction) {
-            client.player.unpause();
             const channel = interaction.member?.voice.channel;
             if (channel) {
                 /**
                  * The user is in a voice channel, try to connect.
                  */
                 try {
+                    let inst = client.getInstance(interaction.guildId)
                     const url = "https://www.youtube.com/watch?v=hUE2DuMP9y8";
-                    await client.playSong(url);
+                    await client.playSong(url, inst);
 
                     const connection = await client.connectToChannel(channel);
 
@@ -27,7 +27,7 @@ module.exports = (client) => {
                      * the player. This means that the player will play audio in the user's
                      * voice channel.
                      */
-                    connection.subscribe(client.player);
+                    connection.subscribe(inst.player);
                     
                     await interaction.reply('Playing now!');
                 } catch (error) {

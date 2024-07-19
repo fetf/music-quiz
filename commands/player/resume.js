@@ -8,8 +8,9 @@ module.exports = (client) => {
 
 		async execute(interaction) {
 			try{
-                client.player.unpause();
-                client.currTimer.resume();
+				let inst = client.getInstance(interaction.guildId)
+                inst.player.unpause();
+                inst.currTimer.resume();
             } catch {}
             await interaction.reply('Resumed!');
 		},

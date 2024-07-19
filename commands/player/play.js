@@ -14,6 +14,7 @@ module.exports = (client) => {
             if (channel) {
                 // The user is in a voice channel, try to connect.
                 try {
+                    let inst = client.getInstance(interaction.guildId)
                     const url = interaction.options.getString('link');
 
                     let regex = /(\/watch\?v=[^&]*)|(youtu\.be\/[^?]*)/.exec(url);
@@ -26,20 +27,20 @@ module.exports = (client) => {
                     const videos = await client.youtube.getVideo(id);
 
                     try{
-                        await client.playSong(url);
+                        await client.playSong(url, inst);
                     } catch (error) {
                         //throw error;
                         await interaction.reply('Invalid URL');
                         return;
                     }
-                    client.player.unpause();
+                    inst.player.unpause();
 
                     const connection = await client.connectToChannel(channel);
 
                     connection.on('stateChange', (oldState, newState) => {
                         console.log(`Connection transitioned from ${oldState.status} to ${newState.status}`);
                     });
-                    connection.subscribe(client.player);
+                    connection.subscribe(inst.player);
                     
                     const songEmbed = new EmbedBuilder()
                         .setColor(0xFFB7C5)

@@ -12,7 +12,8 @@ module.exports = (client) => {
 			),
 
 		async execute(interaction) {
-			if (!client.activeQuiz) {
+			let inst = client.getInstance(interaction.guildId)
+			if (!inst.activeQuiz) {
 				const channel = interaction.member?.voice.channel;
 				if (channel) {
 					/**
@@ -32,8 +33,8 @@ module.exports = (client) => {
 						client.shuffle(videos);
 	
 						try{
-							await client.playSongList(videos, 0, interaction.channel);
-							client.player.unpause();
+							await client.playSongList(videos, 0, interaction.channel, inst);
+							inst.player.unpause();
 						} catch (error) {
 							console.error(error);
 							await interaction.reply('Invalid Playlist');
@@ -51,15 +52,15 @@ module.exports = (client) => {
 						 * the player. This means that the player will play audio in the user's
 						 * voice channel.
 						 */
-						connection.subscribe(client.player);
+						connection.subscribe(inst.player);
 						
 						const message = await interaction.reply({ content: 'Music Quiz Started!', fetchReply: true });
-						client.activeQuiz = true;
-						client.channelId = interaction.channelId;
+						inst.activeQuiz = true;
+						inst.channelId = interaction.channelId;
 						message.react('😄');
 						for (let id of channel.members.keys()) {
 							if (!channel.members.get(id).user.bot) {
-								client.scores.set(id, 0);
+								inst.scores.set(id, 0);
 							}
 						}
 					} catch (error) {

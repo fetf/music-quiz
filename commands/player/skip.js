@@ -8,7 +8,8 @@ module.exports = (client) => {
 
 		async execute(interaction) {
 			try{
-                await client.currTimer.finish();
+				let inst = client.getInstance(interaction.guildId)
+                await inst.currTimer.finish();
                 await interaction.reply('Skipped!');
             } catch {
                 await interaction.reply('Nothing to Skip');

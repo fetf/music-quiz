@@ -8,8 +8,9 @@ module.exports = (client) => {
 
 		async execute(interaction) {
 			try{
-                client.player.pause();
-                client.currTimer.pause();
+				let inst = client.getInstance(interaction.guildId)
+                inst.player.pause();
+                inst.currTimer.pause();
             } catch {}
             await interaction.reply('Stopped!');
 		},
