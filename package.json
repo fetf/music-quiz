@@ -5,8 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "npm i && node index.js",
-		"build": "npm i",
-		"cleanrun": "./run"
+		"build": "echo \"No build step defined\"",
+    "test": "echo \"No test step defined\""
 	},
 	"keywords": [
 		"discord",
