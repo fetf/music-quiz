@@ -2,11 +2,12 @@
 	"name": "music-quiz-bot",
 	"version": "1.0.0",
 	"description": "A music quiz and player bot to guess and play songs",
-	"main": "main.js",
+	"main": "index.js",
 	"scripts": {
-		"start": "npm i && node main.js",
+		"start": "npm i && node index.js",
 		"build": "echo \"No build step defined\"",
-		"test": "echo \"No test step defined\""
+		"test": "echo \"No test step defined\"",
+                "clean": "rm -rf node_modules"
 	},
 	"keywords": [
 		"discord",
