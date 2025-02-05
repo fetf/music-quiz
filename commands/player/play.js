@@ -50,8 +50,7 @@ module.exports = (client) => {
                         .setImage(videos.thumbnails.best );
 
                     
-                    await interaction.reply("**Playing Now:**");
-                    interaction.channel.send({ embeds: [songEmbed] });
+                    await interaction.reply({ content: "**Playing Now:**", embeds: [songEmbed] });
                 } catch (error) {
                     // Unable to connect to the voice channel within 30 seconds :(
                     console.error(error);

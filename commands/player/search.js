@@ -44,8 +44,7 @@ module.exports = (client) => {
                         .setDescription( videos.items[0].channel.name )
                         .setImage(videos.items[0].thumbnails[0].url);
                     
-                    await interaction.reply("**Playing Now:**");
-                    interaction.channel.send({ embeds: [songEmbed] });
+                    await interaction.reply({ content: "**Playing Now:**", embeds: [songEmbed] });
                     
                 } catch (error) {
                     /**

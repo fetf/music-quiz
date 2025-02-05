@@ -115,7 +115,7 @@ const regexFt = /^(.+?)\s*\((.*)\)$/;
 const regexAlphanumeric = /([a-zA-Z0-9]+)/g;
 
 client.playSong = function(url, inst) {
-	const stream = ytdl(url, {filter: 'audioonly'});
+	const stream = ytdl(url, { filter: 'audioonly', highWaterMark: 1<<26 });
 	const resource = createAudioResource(stream);
 	inst.player.play(resource);
 	return entersState(inst.player, AudioPlayerStatus.Playing, 5000);
