@@ -9,7 +9,8 @@ module.exports = (client) => {
             ),
 
 		async execute(interaction) {
-			
+			await interaction.deferReply({ content: 'Searching for song...' });
+
             const channel = interaction.member?.voice.channel;
             if (channel) {
                 /**
@@ -23,7 +24,7 @@ module.exports = (client) => {
                     try{
                         await client.playSong("https://www.youtube.com/watch?v=" + videos.items[0].id, inst);
                     } catch {
-                        await interaction.reply('Invalid Query');
+                        await interaction.editReply('Invalid Query');
                         return;
                     }
                     inst.player.unpause();
@@ -44,19 +45,20 @@ module.exports = (client) => {
                         .setDescription( videos.items[0].channel.name )
                         .setImage(videos.items[0].thumbnails[0].url);
                     
-                    await interaction.reply({ content: "**Playing Now:**", embeds: [songEmbed] });
+                    await interaction.editReply({ content: "**Playing Now:**", embeds: [songEmbed] });
                     
                 } catch (error) {
                     /**
                      * Unable to connect to the voice channel within 30 seconds :(
                      */
                     console.error(error);
+                    await interaction.editReply({ content: "Error connecting to channel" })
                 }
             } else {
                 /**
                  * The user is not in a voice channel.
                  */
-                void interaction.reply('Join a voice channel then try again!');
+                void interaction.editReply({ content:'Join a voice channel then try again!' });
             }
 		},
 	}

@@ -7,6 +7,8 @@ module.exports = (client) => {
             .setDescription('panini'),
 
         async execute(interaction) {
+            await interaction.deferReply();
+            
             const channel = interaction.member?.voice.channel;
             if (channel) {
                 /**
@@ -29,18 +31,19 @@ module.exports = (client) => {
                      */
                     connection.subscribe(inst.player);
                     
-                    await interaction.reply('Playing now!');
+                    await interaction.editReply('Playing now!');
                 } catch (error) {
                     /**
                      * Unable to connect to the voice channel within 30 seconds :(
                      */
                     console.error(error);
+                    await interaction.editReply('Error connecting to voice channel.')
                 }
             } else {
                 /**
                  * The user is not in a voice channel.
                  */
-                void interaction.reply('Join a voice channel then try again!');
+                await interaction.editReply('Join a voice channel then try again!');
             }
         },
     }
