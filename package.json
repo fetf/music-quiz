@@ -21,7 +21,7 @@
 	"author": "@RichardSba, @notvictorl",
 	"license": "MIT",
 	"dependencies": {
-		"@discordjs/rest": "^2.4.2",
+		"@discordjs/rest": "^2.4.3",
 		"@discordjs/voice": "^0.18.0",
 		"@discordjs/ws": "^2.0.1",
 		"@distube/ytdl-core": "^4.16.0",
