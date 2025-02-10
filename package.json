@@ -24,7 +24,7 @@
 		"@discordjs/rest": "^2.4.2",
 		"@discordjs/voice": "^0.18.0",
 		"@discordjs/ws": "^2.0.1",
-		"@distube/ytdl-core": "^4.16.0",
+		"@distube/ytdl-core": "^4.16.3",
 		"async-mutex": "^0.5.0",
 		"discord.js": "^14.17.3",
 		"ffmpeg-static": "^5.2.0",
